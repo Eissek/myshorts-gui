@@ -1,8 +1,15 @@
 (ns myshorts-gui.core
   (:import [javax.swing JFrame
+            JList Box
             JLabel JPanel JButton
             SwingUtilities JMenuBar
-            JMenu JMenuItem]
+            JMenu JMenuItem BorderFactory
+            BoxLayout]
+           [java.awt Dimension]
+           [javax.swing.border
+            TitledBorder]
+           [java.awt.event ActionListener
+            WindowListener ItemListener]
            [javax.accessibility.AccessibleContext])
   (:require [clojure.string :as str]
             [cheshire.core :refer :all]
@@ -11,36 +18,93 @@
   (:gen-class))
 
 
+(defn say-hello []
+  (println "ysh")
+  (System/exit 0))
+
+(def act (reify ActionListener
+           (actionPerformed [this event]
+             (say-hello))))
+
 (defn swing
   []
   (let [frame (JFrame. "MyShorts")
         panel (JPanel.)
-        button (JButton. "Click Here")
+        list-panel (JPanel.)
+        button-panel (JPanel.)
+        button (JButton. "Add")
         menubar (JMenuBar.)
         menu (JMenu. "File")
         menu2 (JMenu. "Edit")
-        menu3 (JMenu. "Help")
-        ]
-    (.setSize frame 600 400)
-    (.setVisible frame true)
-    (.setContentPane frame panel)
+        menu3 (JMenu. "Help")]
+    
+    (doto frame
+      (.setSize 600 400)
+      (.setVisible true)
+      (.setContentPane panel)
+      (.setResizable false)
+      (.setDefaultCloseOperation
+       JFrame/DISPOSE_ON_CLOSE))
+    
+
     (let [menuItem (JMenuItem. "New Shortcut")
           menuItem2 (JMenuItem. "Save")
           menuItem3 (JMenuItem. "Import")
           menuItem4 (JMenuItem. "Exit")]
+
+      (.addActionListener menuItem4 act)
       (.add menu menuItem)
+      (.addSeparator menu)
       (.add menu menuItem2)
       (.add menu menuItem3)
+      (.setEnabled menuItem3 false)
+      (.addSeparator menu)
       (.add menu menuItem4))
+
     (let [access (.getAccessibleContext menu)]
       (.setAccessibleDescription access "Dunno"))
-    (let [menu (JMenu. "Edit")])
+    
+    (let [menuItem (JMenuItem. "Undo")]
+      (.add menu2 menuItem)
+      (.setEnabled menuItem false))
+    
+    (let [menuItem (JMenuItem. "Quick Guide")
+          menuItem2 (JMenuItem. "About")]
+      (.add menu3 menuItem)
+      (.setEnabled menuItem false)
+      (.addSeparator menu3)
+      (.add menu3 menuItem2))
+    
     (.add menubar menu)
     (.add menubar menu2)
     (.add menubar menu3)
     (.setJMenuBar frame menubar)
-    (.add panel button)
+    
+    (.add button-panel button)
+    (let [edit (JButton. "Edit")]
+      (.add button-panel edit))
+    (let [delete (JButton. "Delete")]
+      (.add button-panel delete))
+    
+    (doto button-panel
+      (.add (Box/createRigidArea (Dimension. 10 0)))
+      (.setLayout (BoxLayout. button-panel BoxLayout/X_AXIS)))
+    (doto list-panel
+      (.add (Box/createRigidArea (Dimension. 10 0)))
+      (.setLayout (BoxLayout. list-panel BoxLayout/Y_AXIS))
+      (.setBorder
+       (BorderFactory/createTitledBorder "Title"))
+      (.add (let [lis (JList. (into-array String ["Alpha" "Beta" "Omega"]))]
+              (doto lis
+                (.setPreferredSize (Dimension. 560 281))))))
+    
+    (doto panel )
+    (.add (.getContentPane frame) button-panel
+          (BorderLayout/PAGE_START))
+    (.add (.getContentPane frame) list-panel
+                           BorderLayout/CENTER)
     (.revalidate button)))
+
 
 (defn gen-uuid
   []
