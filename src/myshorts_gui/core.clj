@@ -27,7 +27,8 @@
            (actionPerformed [this event]
              (say-hello))))
 
-(def column-names ["shortcuts" "Description" "tags" "id"])
+(def select-values (comp vals select-keys))
+(def column-names ["Shortcut" "Description" "Tag"])
 (defn swing
   []
   (let [frame (JFrame. "MyShorts")
@@ -113,7 +114,7 @@
        (BorderFactory/createTitledBorder "Title"))
       (.add (JScrollPane.
              (JTable.
-              (to-array-2d (read-shortcuts-file))
+              (to-array-2d (map #(reverse (s-values % [:short :desc :tags])) (read-shortcuts-file)))
               (into-array column-names))))
       (.setPreferredSize (Dimension. 560 281)))
     
