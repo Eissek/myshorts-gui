@@ -35,6 +35,7 @@
         panel (JPanel.)
         list-panel (JPanel.)
         button-panel (JPanel.)
+        filter-panel (JPanel.)
         button (JButton. "Add")
         menubar (JMenuBar.)
         menu (JMenu. "File")
@@ -107,6 +108,14 @@
     (let [scroll-pane (JScrollPane.
                        (JTable. (to-array-2d (read-shortcuts-file))
                                 (into-array column-names)))])
+    
+    (doto filter-panel
+      (.setPreferredSize (Dimension. 450 30))
+      (.add (Box/createRigidArea (Dimension. 10 0)))
+      (.add (let [button (JButton. "test")]
+              (doto button
+                (.revalidate)))))
+    
     (doto list-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. list-panel BoxLayout/Y_AXIS))
@@ -116,11 +125,12 @@
              (JTable.
               (to-array-2d (map #(reverse (s-values % [:short :desc :tags])) (read-shortcuts-file)))
               (into-array column-names))))
-      (.setPreferredSize (Dimension. 560 281)))
+      (.setPreferredSize (Dimension. 560 271)))
     
     (doto panel )
     (.add (.getContentPane frame) button-panel
           (BorderLayout/PAGE_START))
+    (.add (.getContentPane frame) filter-panel)
     (.add (.getContentPane frame) list-panel
                            BorderLayout/CENTER)
     (.revalidate button)))
