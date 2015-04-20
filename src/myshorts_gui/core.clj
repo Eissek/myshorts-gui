@@ -1,15 +1,16 @@
 (ns myshorts-gui.core
-  (:import [javax.swing JFrame
-            JList Box
+  (:import [javax.swing JFrame JScrollPane
+            JList Box KeyStroke
             JLabel JPanel JButton
             SwingUtilities JMenuBar
             JMenu JMenuItem BorderFactory
-            BoxLayout]
+            BoxLayout JTable]
            [java.awt Dimension]
            [javax.swing.border
             TitledBorder]
            [java.awt.event ActionListener
-            WindowListener ItemListener]
+            WindowListener ItemListener
+            KeyEvent ActionEvent]
            [javax.accessibility.AccessibleContext])
   (:require [clojure.string :as str]
             [cheshire.core :refer :all]
@@ -26,6 +27,7 @@
            (actionPerformed [this event]
              (say-hello))))
 
+(def column-names ["shortcuts" "Description" "tags" "id"])
 (defn swing
   []
   (let [frame (JFrame. "MyShorts")
@@ -52,6 +54,18 @@
           menuItem3 (JMenuItem. "Import")
           menuItem4 (JMenuItem. "Exit")]
 
+      (.setAccelerator menuItem
+                       (KeyStroke/getKeyStroke
+                        (KeyEvent/VK_N)
+                        (ActionEvent/CTRL_MASK)))
+      (.setAccelerator menuItem2
+                       (KeyStroke/getKeyStroke
+                        (KeyEvent/VK_S)
+                        (ActionEvent/CTRL_MASK)))
+      (.setMnemonic menu
+                    (KeyEvent/VK_F))
+      (.setMnemonic menuItem4
+                    (KeyEvent/VK_X))
       (.addActionListener menuItem4 act)
       (.add menu menuItem)
       (.addSeparator menu)
@@ -89,14 +103,19 @@
     (doto button-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. button-panel BoxLayout/X_AXIS)))
+    (let [scroll-pane (JScrollPane.
+                       (JTable. (to-array-2d (read-shortcuts-file))
+                                (into-array column-names)))])
     (doto list-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. list-panel BoxLayout/Y_AXIS))
       (.setBorder
        (BorderFactory/createTitledBorder "Title"))
-      (.add (let [lis (JList. (into-array String ["Alpha" "Beta" "Omega"]))]
-              (doto lis
-                (.setPreferredSize (Dimension. 560 281))))))
+      (.add (JScrollPane.
+             (JTable.
+              (to-array-2d (read-shortcuts-file))
+              (into-array column-names))))
+      (.setPreferredSize (Dimension. 560 281)))
     
     (doto panel )
     (.add (.getContentPane frame) button-panel

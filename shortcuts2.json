@@ -1,1 +1,16 @@
-[{"tags":"Emacs","short":"C-x k","desc":"Kill Buffer","id":"b6154b80-e943-4b92-be34-ede78580aca9"}]
+[ {
+  "tags" : "emacs",
+  "short" : "c-x b",
+  "desc" : "switch buffer",
+  "id" : "69815485-c8e1-48c4-8f3d-c6345703449a"
+}, {
+  "tags" : "emacs",
+  "short" : "c-x s",
+  "desc" : "save buffer",
+  "id" : "d61d278d-f785-4fce-8437-01cc07849772"
+}, {
+  "tags" : "Emacs",
+  "short" : "C-x k",
+  "desc" : "Kill Buffer",
+  "id" : "b6154b80-e943-4b92-be34-ede78580aca9"
+} ]
