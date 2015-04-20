@@ -1,6 +1,6 @@
 (ns myshorts-gui.core
   (:import [javax.swing JFrame JScrollPane
-            JList Box KeyStroke
+            JList Box KeyStroke JTextField
             JLabel JPanel JButton
             SwingUtilities JMenuBar
             JMenu JMenuItem BorderFactory
@@ -112,8 +112,11 @@
     (doto filter-panel
       (.setPreferredSize (Dimension. 450 30))
       (.add (Box/createRigidArea (Dimension. 10 0)))
-      (.add (let [button (JButton. "test")]
-              (doto button
+      (.add (let [filter-label (JLabel. "Filter Tags:")]
+              (doto filter-label
+                (.setHorizontalTextPosition (JLabel/CENTER)))))
+      (.add (let [filter-field (JTextField. 30)]
+              (doto filter-field
                 (.revalidate)))))
     
     (doto list-panel
