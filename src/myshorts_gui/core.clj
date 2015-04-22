@@ -5,12 +5,14 @@
             SwingUtilities JMenuBar
             JMenu JMenuItem BorderFactory
             BoxLayout JTable]
-           [javax.swing.event DocumentListener DocumentEvent]
+           [javax.swing.event DocumentListener
+            TableModelListener DocumentEvent]
            [java.awt Dimension BorderLayout]
            [javax.swing.border TitledBorder]
            [java.awt.event ActionListener
-            WindowListener ItemListener
+            WindowListener ItemListener 
             KeyEvent ActionEvent]
+           [javax.swing.table TableModel]
            [javax.accessibility.AccessibleContext])
   (:require [clojure.string :as str]
             [cheshire.core :refer :all]
@@ -18,6 +20,50 @@
             [clojure.pprint :refer [print-table]])
   (:gen-class))
 
+
+(def select-values (comp vals select-keys))
+(def column-names ["Shortcut" "Description" "Tag"])
+(def saved-file "shortcuts2.json")
+(defn read-shortcuts-file
+  []
+  (parse-string (slurp saved-file) true))
+
+(defn search-shortcuts
+  [tag]
+  [:short :desc :tags]
+               (filter #(.contains (:tags %) tag)
+                       (read-shortcuts-file)))
+
+
+(defn apply-filter [arg panel tbl filter-field]
+  ;; (.setVisible panel false)
+  ;; (.setDataVector (.getModel tbl)
+                  ;; (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "emacs")))
+                  ;; (into-array column-names) )
+  (.remove (.getViewport panel) tbl )
+  
+  ;; (if (.isValid (.getViewport panel))
+    ;; (.remove (.getViewport panel) (JTable.)))
+
+  (.remove (.getViewport panel) (JTable.))
+  (.add (.getViewport panel) (JTable.
+                              (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts (.getText filter-field))))
+                              (into-array column-names)))
+  (.repaint arg))
+
+(defn scroll-pane
+  ([]
+   (JScrollPane.
+    (JTable.
+     (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (read-shortcuts-file)))
+     (into-array column-names))))
+  
+  ([filter-field pane arg]
+   (.remove (.getViewport pane) (JTable.))
+   (.add (.getViewport pane) (JTable.
+                              (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts (.getText filter-field))))
+                              (into-array column-names)))
+     (.repaint arg)))
 
 (defn say-hello []
   (println "ysh")
@@ -29,20 +75,30 @@
       (JOptionPane.
        (.showMessageDialog "Hi")))))
 
-(defn act [func]
-  (reify ActionListener
-    (actionPerformed [this event]
-      (func))))
+(defn act
+  ([func]
+   (reify ActionListener
+     (actionPerformed [this event]
+       (func))))
+  ([func arg1 arg2 arg3 text]
+   (reify ActionListener
+     (actionPerformed [this event]
+       (func arg1 arg2 arg3 text)))))
 
-(defn doc-listener [func]
-  (reify DocumentListener
-    (insertUpdate [this event] (func))
-    (removeUpdate [this event] (func))
-    (changedUpdate [this event ])))
+(defn doc-listener
+  ([func]
+   (reify DocumentListener
+     (insertUpdate [this event] (func))
+     (removeUpdate [this event] (func))
+     (changedUpdate [this event ])))
+  ([func query panel]
+   (reify DocumentListener
+     (insertUpdate [this event] (scroll-pane (func query)))
+     (removeUpdate [this event] (scroll-pane (func query)))
+     (changedUpdate [this event ]))))
 
 
-(def select-values (comp vals select-keys))
-(def column-names ["Shortcut" "Description" "Tag"])
+
 
 
 
@@ -56,7 +112,7 @@
 (defn write-shortcut
   [args])
 
-(def saved-file "shortcuts2.json")
+
 
 (defn list-shortcuts
   []
@@ -123,15 +179,6 @@
        shortcut "desc " desc "tags " tags))
 
 
-(defn read-shortcuts-file
-  []
-  (parse-string (slurp saved-file) true))
-
-(defn search-shortcuts
-  [tag]
-  (print-table [:short :desc :tags]
-               (filter #(.contains (:tags %) tag)
-                       (read-shortcuts-file))))
 
 (defn delete-shortcut
   [args]
@@ -152,6 +199,10 @@
         (println "Shortcut deleted")))))
 
 
+
+
+
+
 (defn swing
   []
   (let [frame (JFrame. "MyShorts")
@@ -163,7 +214,13 @@
         menubar (JMenuBar.)
         menu (JMenu. "File")
         menu2 (JMenu. "Edit")
-        menu3 (JMenu. "Help")]
+        menu3 (JMenu. "Help")
+        filter-field (JTextField.  20)
+        table (JTable.
+               (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "Windows")))
+               (into-array column-names))
+        scroll-pane2 (JScrollPane.)
+        filter-button (JButton. "Apply")]
     
     (doto frame
       (.setSize 600 400)
@@ -172,7 +229,8 @@
       (.setResizable false)
       (.setDefaultCloseOperation
        JFrame/DISPOSE_ON_CLOSE))
-    
+
+    (.setFillsViewportHeight table true)
 
     (let [menuItem (JMenuItem. "New Shortcut")
           menuItem2 (JMenuItem. "Save")
@@ -228,30 +286,51 @@
     (doto button-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. button-panel BoxLayout/X_AXIS)))
-    (let [scroll-pane (JScrollPane.
-                       (JTable. (to-array-2d (read-shortcuts-file))
-                                (into-array column-names)))])
-    
+
+      (.addTableModelListener
+       (.getModel table)
+       (reify TableModelListener
+         (tableChanged [this event]
+           ;; (.remove list-panel scroll-pane2)
+           
+           ;; (.repaint list-panel)
+           
+           )))
+
+      
     (doto filter-panel
       (.setPreferredSize (Dimension. 450 30))
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.add (let [filter-label (JLabel. "Filter Tags:")]
               (doto filter-label
                 (.setHorizontalTextPosition (JLabel/CENTER)))))
-      (.add (let [filter-field (JTextField. 30)]
-              (.addDocumentListener (.getDocument filter-field) (doc-listener say-hello))
-              (doto filter-field
-                (.revalidate)))))
-    
+      (.add filter-field
+            (.addDocumentListener
+             (.getDocument filter-field)
+             (reify DocumentListener
+               (insertUpdate [this event]
+                 (scroll-pane filter-field scroll-pane2 list-panel)
+                 ;; (.fireTableDataChanged (.getModel table))
+                 )
+               (removeUpdate [this event] (scroll-pane filter-field scroll-pane2 list-panel))
+               (changedUpdate [this event]))))
+      
+      (.add filter-button
+            (.addActionListener filter-button
+                                (act apply-filter list-panel scroll-pane2 table filter-field)))
+      )
+
+    ;; (.setFillsViewportHeight table true)
+      ;; (.add table (.getViewport scroll-pane2))
+    (.add (.getViewport scroll-pane2) table)
+      ;; (.setVisible table true)
     (doto list-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. list-panel BoxLayout/Y_AXIS))
       (.setBorder
        (BorderFactory/createTitledBorder "Title"))
-      (.add (JScrollPane.
-             (JTable.
-              (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (read-shortcuts-file)))
-              (into-array column-names))))
+       (.add scroll-pane2)
+
       (.setPreferredSize (Dimension. 560 271)))
     
     (doto panel )
@@ -260,7 +339,10 @@
     (.add (.getContentPane frame) filter-panel)
     (.add (.getContentPane frame) list-panel
                            BorderLayout/CENTER)
+    (.repaint scroll-pane2)
     (.revalidate button)))
+
+
 
 (defn -main
   "I don't do a whole lot ... yet."
