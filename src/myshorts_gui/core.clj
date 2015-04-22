@@ -91,10 +91,10 @@
      (insertUpdate [this event] (func))
      (removeUpdate [this event] (func))
      (changedUpdate [this event ])))
-  ([func query panel]
+  ([func query panel listpanel]
    (reify DocumentListener
-     (insertUpdate [this event] (scroll-pane (func query)))
-     (removeUpdate [this event] (scroll-pane (func query)))
+     (insertUpdate [this event] (func query panel listpanel))
+     (removeUpdate [this event] (func query panel listpanel))
      (changedUpdate [this event ]))))
 
 
@@ -307,13 +307,7 @@
       (.add filter-field
             (.addDocumentListener
              (.getDocument filter-field)
-             (reify DocumentListener
-               (insertUpdate [this event]
-                 (scroll-pane filter-field scroll-pane2 list-panel)
-                 ;; (.fireTableDataChanged (.getModel table))
-                 )
-               (removeUpdate [this event] (scroll-pane filter-field scroll-pane2 list-panel))
-               (changedUpdate [this event]))))
+             (doc-listener scroll-pane filter-field scroll-pane2 list-panel)))
       
       (.add filter-button
             (.addActionListener filter-button
