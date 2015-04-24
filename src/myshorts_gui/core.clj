@@ -207,11 +207,12 @@
   (let [frame (JFrame. "Add Shortcut")
         panel (JPanel.)
         top-panel (JPanel.)
+        top-panel-left (JPanel.)
         bottom-panel (JPanel.)
         scroll-pane (JScrollPane.)]
 
     (doto frame
-      (.setSize 450 260)
+      (.setSize 450 240)
       (.setVisible true)
       (.setContentPane panel)
       (.setDefaultCloseOperation
@@ -222,16 +223,20 @@
     (doto panel
       (.setLayout (BoxLayout. panel  BoxLayout/Y_AXIS)))
 
-    (let [shortcut-field (JTextField. 17)
-          tags-field (JTextField. 17)
+    (let [shortcut-field (JTextField. 12)
+          tags-field (JTextField. 12)
           desc-area (JTextArea. 5 37)
-          desc-label (JLabel. "Shortcut Description")]
+          desc-label (JLabel. "Shortcut Description:")
+          short-label (JLabel. "Shortcut:")
+          tag-label (JLabel. "Tags:")]
       (.setPreferredSize shortcut-field (Dimension. 10 25))
       (.setPreferredSize tags-field (Dimension. 10 25))
       (doto top-panel
         (.setPreferredSize (Dimension. 300 200))
+        (.add short-label)
         (.add shortcut-field)
-        (.add (Box/createRigidArea (Dimension. 14 0)))
+        (.add (Box/createRigidArea (Dimension. 10 0)))
+        (.add tag-label)
         (.add tags-field)        
         (.add desc-label)
         (.add (.add (.getViewport scroll-pane) desc-area)scroll-pane))
