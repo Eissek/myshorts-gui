@@ -7,8 +7,8 @@
             BoxLayout JTable]
            [javax.swing.event DocumentListener
             TableModelListener DocumentEvent]
-           [java.awt Dimension BorderLayout]
-           [javax.swing.border TitledBorder]
+           [java.awt Dimension BorderLayout Color]
+           [javax.swing.border TitledBorder Border]
            [java.awt.event ActionListener
             WindowListener ItemListener 
             KeyEvent ActionEvent]
@@ -208,10 +208,10 @@
         panel (JPanel.)
         top-panel (JPanel.)
         bottom-panel (JPanel.)
-        scroll (JScrollPane.)]
+        scroll-pane (JScrollPane.)]
 
     (doto frame
-      (.setSize 450 200)
+      (.setSize 450 260)
       (.setVisible true)
       (.setContentPane panel)
       (.setDefaultCloseOperation
@@ -222,14 +222,28 @@
     (doto panel
       (.setLayout (BoxLayout. panel  BoxLayout/Y_AXIS)))
 
-    (let [shortcut-field (JTextField. 15)
-          tags-field (JTextField. 15)
-          desc-area (JTextArea. 2 6)]
+    (let [shortcut-field (JTextField. 17)
+          tags-field (JTextField. 17)
+          desc-area (JTextArea. 5 37)
+          desc-label (JLabel. "Shortcut Description")]
+      (.setPreferredSize shortcut-field (Dimension. 10 25))
+      (.setPreferredSize tags-field (Dimension. 10 25))
       (doto top-panel
+        (.setPreferredSize (Dimension. 300 200))
         (.add shortcut-field)
-        (.add tags-field)
-        (.add desc-area)))
-    ))
+        (.add (Box/createRigidArea (Dimension. 14 0)))
+        (.add tags-field)        
+        (.add desc-label)
+        (.add (.add (.getViewport scroll-pane) desc-area)scroll-pane))
+      (.setHorizontalTextPosition desc-label (JLabel/LEADING))
+      (.setPreferredSize desc-area  (Dimension. 300 100))
+      (.setBorder desc-area (BorderFactory/createLineBorder Color/BLACK)))
+    (let [add-button (JButton. "Add")
+          close-button (JButton. "Close")]
+      (doto bottom-panel
+        (.setPreferredSize (Dimension. 50 60))
+        (.add add-button)
+        (.add close-button)))))
 
 (defn swing
   []
