@@ -2,7 +2,7 @@
   (:import [javax.swing JFrame JScrollPane
             JList Box KeyStroke JTextField
             JLabel JPanel JButton JOptionPane
-            SwingUtilities JMenuBar
+            SwingUtilities JMenuBar JTextArea
             JMenu JMenuItem BorderFactory
             BoxLayout JTable]
            [javax.swing.event DocumentListener
@@ -202,6 +202,34 @@
 
 
 
+(defn add-short-window
+  []
+  (let [frame (JFrame. "Add Shortcut")
+        panel (JPanel.)
+        top-panel (JPanel.)
+        bottom-panel (JPanel.)
+        scroll (JScrollPane.)]
+
+    (doto frame
+      (.setSize 450 200)
+      (.setVisible true)
+      (.setContentPane panel)
+      (.setDefaultCloseOperation
+       JFrame/DISPOSE_ON_CLOSE)
+      (.add top-panel (.getContentPane frame))
+      (.add bottom-panel (.getContentPane frame)))
+
+    (doto panel
+      (.setLayout (BoxLayout. panel  BoxLayout/Y_AXIS)))
+
+    (let [shortcut-field (JTextField. 15)
+          tags-field (JTextField. 15)
+          desc-area (JTextArea. 2 6)]
+      (doto top-panel
+        (.add shortcut-field)
+        (.add tags-field)
+        (.add desc-area)))
+    ))
 
 (defn swing
   []
@@ -297,6 +325,11 @@
            
            )))
 
+      (doto button
+        (.addActionListener
+         (reify ActionListener
+           (actionPerformed [this event]
+             (add-short-window)))))
       
     (doto filter-panel
       (.setPreferredSize (Dimension. 450 30))
