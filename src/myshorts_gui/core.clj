@@ -248,7 +248,11 @@
       (doto bottom-panel
         (.setPreferredSize (Dimension. 50 60))
         (.add add-button)
-        (.add close-button)))))
+        (.add close-button))
+      (doto add-button
+        (.addActionListener))
+      (doto close-button
+        (.addActionListener (act say-hello))))))
 
 (defn swing
   []
