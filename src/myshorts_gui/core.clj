@@ -4,10 +4,10 @@
             JLabel JPanel JButton JOptionPane
             SwingUtilities JMenuBar JTextArea
             JMenu JMenuItem BorderFactory
-            BoxLayout JTable]
+            BoxLayout JTable JLayeredPane SwingConstants]
            [javax.swing.event DocumentListener
             TableModelListener DocumentEvent]
-           [java.awt Dimension BorderLayout Color]
+           [java.awt Dimension BorderLayout Color Font]
            [javax.swing.border TitledBorder Border]
            [java.awt.event ActionListener
             WindowListener ItemListener 
@@ -96,10 +96,6 @@
      (insertUpdate [this event] (func query panel listpanel))
      (removeUpdate [this event] (func query panel listpanel))
      (changedUpdate [this event ]))))
-
-
-
-
 
 
 (defn gen-uuid
@@ -204,22 +200,25 @@
 
 (defn add-short-window
   []
-  (let [frame (JFrame. "Add Shortcut")
+  (let [add-frame (JFrame. "Add Shortcut")
+        layered-pane (JLayeredPane.)
         panel (JPanel.)
-        top-panel (JPanel.)
+        status-label (JLabel. "Added Shortcut")
         top-panel-left (JPanel.)
         bottom-panel (JPanel.)
         scroll-pane (JScrollPane.)]
 
-    (doto frame
+    (doto add-frame
       (.setSize 450 240)
       (.setVisible true)
       (.setContentPane panel)
       (.setDefaultCloseOperation
        JFrame/DISPOSE_ON_CLOSE)
-      (.add top-panel (.getContentPane frame))
-      (.add bottom-panel (.getContentPane frame)))
+      (.add layered-pane (.getContentPane add-frame))
+      (.add bottom-panel (.getContentPane add-frame)))
 
+    
+    
     (doto panel
       (.setLayout (BoxLayout. panel  BoxLayout/Y_AXIS)))
 
@@ -231,28 +230,62 @@
           tag-label (JLabel. "Tags:")]
       (.setPreferredSize shortcut-field (Dimension. 10 25))
       (.setPreferredSize tags-field (Dimension. 10 25))
-      (doto top-panel
+
+      (doto layered-pane
         (.setPreferredSize (Dimension. 300 200))
-        (.add short-label)
-        (.add shortcut-field)
-        (.add (Box/createRigidArea (Dimension. 10 0)))
-        (.add tag-label)
-        (.add tags-field)        
-        (.add desc-label)
-        (.add (.add (.getViewport scroll-pane) desc-area)scroll-pane))
+        ;; (.setBorder (BorderFactory/createLineBorder Color/BLACK))
+        (.add short-label (Integer. 1))
+        (.add shortcut-field (Integer. 1))
+        ;; (.add (Box/createRigidArea (Dimension. 10 0)) 1)
+        (.add tag-label 1)
+        (.add tags-field 1)        
+        (.add desc-label 1)
+        (.add (.add (.getViewport scroll-pane)
+                    desc-area)scroll-pane)
+        (.add status-label 2))
+
+      (doto status-label
+        (.setBounds 200 60 160 30)
+        (.setOpaque true)
+        (.setHorizontalAlignment SwingConstants/CENTER)
+        (.setBackground Color/GREEN)
+        (.setFont (Font. "Arial" Font/BOLD 16))
+        (.setVisible false))
+      
+      (.setBounds short-label 11 3 80 20)
+      (.setBounds shortcut-field 10 25 200 30)
+      (.setBounds tag-label 231 3 80 20)
+      (.setBounds tags-field   230 25 200 30)
+      (.setBounds desc-label 11 55 189 20)
+      (.setBounds desc-area 10 76 420 95)
+      
       (.setHorizontalTextPosition desc-label (JLabel/LEADING))
-      (.setPreferredSize desc-area  (Dimension. 300 100))
-      (.setBorder desc-area (BorderFactory/createLineBorder Color/BLACK)))
-    (let [add-button (JButton. "Add")
+      (.setPreferredSize desc-area  (Dimension. 300 200))
+      (.setBorder desc-area (BorderFactory/createLineBorder Color/BLACK))
+
+      (let [add-button (JButton. "Add")
           close-button (JButton. "Close")]
       (doto bottom-panel
-        (.setPreferredSize (Dimension. 50 60))
+        (.setPreferredSize (Dimension. 50 40))
         (.add add-button)
         (.add close-button))
+
       (doto add-button
-        (.addActionListener))
+        (.addActionListener (reify ActionListener
+                              (actionPerformed [this event]
+                                (add-shortcut
+                                 (str (.getText shortcut-field))
+                                 (str (.getText desc-area))
+                                 (str (.getText tags-field)))
+                                (.setText shortcut-field "")
+                                (.setText desc-area "")
+                                (.setText tags-field "")))))
+      
       (doto close-button
-        (.addActionListener (act say-hello))))))
+        (.addActionListener (reify ActionListener
+                              (actionPerformed [this event]
+                                (.setVisible add-frame false)
+                                (.dispose add-frame)))))))))
 
 (defn swing
   []
