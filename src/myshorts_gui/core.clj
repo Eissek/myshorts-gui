@@ -197,6 +197,10 @@
 
 
 
+(defn display-status [label]
+  (future (Thread/sleep 1000)
+          (.setVisible label false)))
+
 
 (defn add-short-window
   []
@@ -235,17 +239,17 @@
         (.setPreferredSize (Dimension. 300 200))
         ;; (.setBorder (BorderFactory/createLineBorder Color/BLACK))
         (.add short-label (Integer. 1))
-        (.add shortcut-field (Integer. 1))
+        (.add shortcut-field (Integer. 2))
         ;; (.add (Box/createRigidArea (Dimension. 10 0)) 1)
         (.add tag-label 1)
-        (.add tags-field 1)        
+        (.add tags-field (Integer. 2))        
         (.add desc-label 1)
         (.add (.add (.getViewport scroll-pane)
                     desc-area)scroll-pane)
-        (.add status-label 2))
+        (.add status-label (Integer. 3)))
 
       (doto status-label
-        (.setBounds 200 60 160 30)
+        (.setBounds 130 30 160 30)
         (.setOpaque true)
         (.setHorizontalAlignment SwingConstants/CENTER)
         (.setBackground Color/GREEN)
@@ -279,7 +283,9 @@
                                  (str (.getText tags-field)))
                                 (.setText shortcut-field "")
                                 (.setText desc-area "")
-                                (.setText tags-field "")))))
+                                (.setText tags-field "")
+                                (.setVisible status-label true)
+                                (display-status status-label)))))
       
       (doto close-button
         (.addActionListener (reify ActionListener
@@ -301,7 +307,7 @@
         menu3 (JMenu. "Help")
         filter-field (JTextField.  20)
         table (JTable.
-               (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "Windows")))
+               (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "")))
                (into-array column-names))
         scroll-pane2 (JScrollPane.)
         filter-button (JButton. "Apply")]
