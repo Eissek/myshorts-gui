@@ -12,7 +12,7 @@
            [java.awt.event ActionListener
             WindowListener ItemListener 
             KeyEvent ActionEvent]
-           [javax.swing.table TableModel]
+           [javax.swing.table TableModel DefaultTableModel]
            [javax.accessibility.AccessibleContext])
   (:require [clojure.string :as str]
             [cheshire.core :refer :all]
@@ -293,6 +293,11 @@
                                 (.setVisible add-frame false)
                                 (.dispose add-frame)))))))))
 
+(def table-shortcuts-list
+  (JTable.
+   (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "")))
+   (into-array column-names)))
+
 (defn swing
   []
   (let [frame (JFrame. "MyShorts")
@@ -306,9 +311,10 @@
         menu2 (JMenu. "Edit")
         menu3 (JMenu. "Help")
         filter-field (JTextField.  20)
-        table (JTable.
-               (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "")))
-               (into-array column-names))
+        model (DefaultTableModel.
+                (to-array-2d (map #(reverse (select-values % [:short :desc :tags])) (search-shortcuts "")))
+                (into-array column-names))
+        table (JTable. model)
         scroll-pane2 (JScrollPane.)
         filter-button (JButton. "Apply")]
     
@@ -369,23 +375,25 @@
     
     (.add button-panel button)
     (let [edit (JButton. "Edit")]
-      (.add button-panel edit))
+      (.add button-panel edit)
+      (.setEnabled edit false))
     (let [delete (JButton. "Delete")]
-      (.add button-panel delete))
+      (.add button-panel delete)
+      (doto delete
+        (.addActionListener
+         (reify ActionListener
+           (actionPerformed [this event]
+             (delete-shortcut
+              (.getValueAt table
+                           (.getSelectedRow table)
+                           (.getSelectedColumn table)))
+             (.removeRow (.getModel table) (.getSelectedRow table))
+             (.revalidate panel)
+             (.repaint panel))))))
     
     (doto button-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. button-panel BoxLayout/X_AXIS)))
-
-      (.addTableModelListener
-       (.getModel table)
-       (reify TableModelListener
-         (tableChanged [this event]
-           ;; (.remove list-panel scroll-pane2)
-           
-           ;; (.repaint list-panel)
-           
-           )))
 
       (doto button
         (.addActionListener
