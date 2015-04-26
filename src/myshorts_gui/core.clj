@@ -203,7 +203,7 @@
 
 
 (defn add-short-window
-  []
+  [table]
   (let [add-frame (JFrame. "Add Shortcut")
         layered-pane (JLayeredPane.)
         panel (JPanel.)
@@ -275,17 +275,24 @@
         (.add close-button))
 
       (doto add-button
-        (.addActionListener (reify ActionListener
-                              (actionPerformed [this event]
-                                (add-shortcut
-                                 (str (.getText shortcut-field))
-                                 (str (.getText desc-area))
-                                 (str (.getText tags-field)))
-                                (.setText shortcut-field "")
-                                (.setText desc-area "")
-                                (.setText tags-field "")
-                                (.setVisible status-label true)
-                                (display-status status-label)))))
+        (.addActionListener
+         (reify ActionListener
+           (actionPerformed [this event]
+             (.insertRow (.getModel table) 0
+                         (to-array
+                          (vector (str (.getText shortcut-field))
+                           (str (.getText desc-area))
+                           (str (.getText tags-field)))
+                          ))
+             (add-shortcut
+              (str (.getText shortcut-field))
+              (str (.getText desc-area))
+              (str (.getText tags-field)))
+             (.setText shortcut-field "")
+             (.setText desc-area "")
+             (.setText tags-field "")
+             (.setVisible status-label true)
+             (display-status status-label)))))
       
       (doto close-button
         (.addActionListener (reify ActionListener
@@ -399,7 +406,7 @@
         (.addActionListener
          (reify ActionListener
            (actionPerformed [this event]
-             (add-short-window)))))
+             (add-short-window table)))))
       
     (doto filter-panel
       (.setPreferredSize (Dimension. 450 30))
@@ -414,13 +421,11 @@
       
       (.add filter-button
             (.addActionListener filter-button
-                                (act apply-filter list-panel scroll-pane2 table filter-field)))
-      )
+                                (act apply-filter list-panel scroll-pane2 table filter-field))))
 
-    ;; (.setFillsViewportHeight table true)
-      ;; (.add table (.getViewport scroll-pane2))
+
     (.add (.getViewport scroll-pane2) table)
-      ;; (.setVisible table true)
+    
     (doto list-panel
       (.add (Box/createRigidArea (Dimension. 10 0)))
       (.setLayout (BoxLayout. list-panel BoxLayout/Y_AXIS))

@@ -1,4 +1,39 @@
 [ {
+  "tags" : "emacs",
+  "short" : "c-x dd",
+  "desc" : "testing",
+  "id" : "c7e5ff7e-b3dd-47ea-80e3-3547528ee56f"
+}, {
+  "tags" : "sss",
+  "short" : "cccff",
+  "desc" : "asda",
+  "id" : "244d6b14-9dcc-444d-a407-442a58e47e1a"
+}, {
+  "tags" : "aas",
+  "short" : "x",
+  "desc" : "ax",
+  "id" : "40a70f90-e4fc-44d9-a276-a6ef5eef98fd"
+}, {
+  "tags" : "aa",
+  "short" : "ddsd",
+  "desc" : "saassaas",
+  "id" : "11933efe-667f-4918-bcc1-aa9032c8c08f"
+}, {
+  "tags" : "csssa",
+  "short" : "ccc",
+  "desc" : "csscs",
+  "id" : "cc5a2fef-9426-4b45-bc86-23c369cc802d"
+}, {
+  "tags" : "assaas",
+  "short" : "asasa",
+  "desc" : "sasaas",
+  "id" : "bf73d41a-b641-4ce1-9acc-ad596cc899c9"
+}, {
+  "tags" : "assa",
+  "short" : "aasasa",
+  "desc" : "assaassa",
+  "id" : "53110390-a7ea-4c34-bfe7-ec3b86af7ad1"
+}, {
   "tags" : "asasa",
   "short" : "asas",
   "desc" : "aacxcasad",
