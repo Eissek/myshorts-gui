@@ -1,4 +1,4 @@
-(defproject myshorts-gui "0.1.0-SNAPSHOT"
+(defproject myshorts-gui "0.1.1-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -7,5 +7,6 @@
                  [cheshire "5.4.0"]]
   :main ^:skip-aot myshorts-gui.core
   :target-path "target/%s"
+  :resource-paths ["resources"]
   :profiles {:uberjar {:aot :all}}
   :bin {:name "myshorts"})

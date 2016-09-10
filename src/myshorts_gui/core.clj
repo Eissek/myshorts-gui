@@ -16,14 +16,14 @@
            [javax.accessibility.AccessibleContext])
   (:require [clojure.string :as str]
             [cheshire.core :refer :all]
-            [clojure.java.io :refer :all]
+            [clojure.java.io :refer :all :as io]
             [clojure.pprint :refer [print-table]])
   (:gen-class))
 
 
 (def select-values (comp vals select-keys))
 (def column-names ["Shortcut" "Description" "Tag"])
-(def saved-file "shortcuts2.json")
+(def saved-file (io/resource "shortcuts2.json"))
 (defn read-shortcuts-file
   []
   (parse-string (slurp saved-file) true))
