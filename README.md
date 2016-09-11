@@ -1,36 +1,8 @@
-# myshorts-gui
+# myshorts-gui   
 
-FIXME: description
+A small application to store commands and keyboard shortcuts. I originally developed this with emacs in mind, as I kept on forgetting some of the  keyboard shortcuts.
 
-## Installation
+!(Image of myshorts gui )[]
 
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar myshorts-gui-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2015 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+### Download
+(Jar file)[https://github.com/Eissek/myshorts-gui/releases/download/v0.1-pre-release/myshorts-gui-0.1.1-SNAPSHOT-standalone.jar]
